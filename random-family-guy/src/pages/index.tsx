@@ -11,7 +11,7 @@ interface RandomEpisode {
 
 const Home: NextPage = () => {
   const episodes = trpc.example.getAll.useQuery();
-  const [episode, setEpisode] = React.useState<RandomEpisode | undefined>("");
+  const [episode, setEpisode] = React.useState<RandomEpisode | undefined>();
   const episodeData = trpc.example.getAllAboutEpisode.useQuery({
     tconst: episode?.tconst,
   }).data;
