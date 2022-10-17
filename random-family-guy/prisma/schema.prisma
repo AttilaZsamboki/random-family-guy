@@ -23,6 +23,17 @@ model Episodes {
     episodeNumber Int
 }
 
+model Titles {
+    tconst         String @id
+    titleType      String
+    primaryTitle   String
+    originalTitle  String
+    isAdult        Int
+    startYear      String
+    endYear        String
+    runtimeMinutes Int
+}
+
 // Necessary for Next auth
 model Account {
     id                String  @id @default(cuid())
