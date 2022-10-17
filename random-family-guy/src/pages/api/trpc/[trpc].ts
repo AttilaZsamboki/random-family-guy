@@ -14,4 +14,7 @@ export default createNextApiHandler({
           console.error(`❌ tRPC failed on ${path}: ${error}`);
         }
       : undefined,
+  batching: {
+    enabled: true,
+  },
 });
