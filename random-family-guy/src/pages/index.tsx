@@ -13,7 +13,7 @@ const Home: NextPage = () => {
   const episodes = trpc.example.getAll.useQuery();
   const [episode, setEpisode] = React.useState<RandomEpisode | undefined>();
   const episodeData = trpc.example.getAllAboutEpisode.useQuery({
-    tconst: episode?.tconst,
+    tconst: episode ? episode?.tconst : "",
   }).data;
   if (!episodes.data) {
     return <div>Loading...</div>;
