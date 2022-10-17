@@ -8,7 +8,7 @@ interface RandomEpisode {
   seasonNumber: number;
   episodeNumber: number;
 }
-
+// this is <ThenableState></ThenableState>
 const Home: NextPage = () => {
   const episodes = trpc.example.getAll.useQuery();
   const [episode, setEpisode] = React.useState<RandomEpisode | undefined>();
