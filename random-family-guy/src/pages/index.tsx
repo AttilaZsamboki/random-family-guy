@@ -1,6 +1,9 @@
 import type { NextPage } from "next";
 import { trpc } from "../utils/trpc";
 import * as React from "react";
+import LoadingStateButton from "../components/LoadingStateButton";
+import DangerAlert from "../components/DangerAlert";
+import { useInterval } from "usehooks-ts";
 
 interface RandomEpisode {
   tconst: string;
@@ -8,22 +11,41 @@ interface RandomEpisode {
   seasonNumber: number;
   episodeNumber: number;
 }
-// this is <ThenableState></ThenableState>
 const Home: NextPage = () => {
   const episodes = trpc.example.getAll.useQuery();
   const [episode, setEpisode] = React.useState<RandomEpisode | undefined>();
+  const [init, setInit] = React.useState(true);
+  const [error, setError] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
   const episodeData = trpc.example.getAllAboutEpisode.useQuery({
     tconst: episode ? episode?.tconst : "",
   }).data;
-  if (!episodes.data) {
-    return <div>Loading...</div>;
-  }
   const rollEpisode = () => {
+    setInit(false);
+    setError(false);
+    setIsLoading(true);
+    if (!episodes.data) {
+      return;
+    }
     const randomEpisode = Math.floor(Math.random() * episodes.data.length);
     setEpisode(episodes.data[randomEpisode]);
+    setIsLoading(false);
   };
+  useInterval(
+    () => {
+      if (!episodeData && !init && !isLoading) {
+        setError(true);
+        setInit(true);
+        return;
+      }
+    },
+    episodeData && init && isLoading ? null : 5000
+  );
   return (
     <div className="grid h-screen place-items-center bg-gray-900">
+      {error && (
+        <DangerAlert errorMsg="Failed to choose random episode, try again" />
+      )}
       {episodeData ? (
         <div>
           <a
@@ -36,24 +58,30 @@ const Home: NextPage = () => {
               window.open(`https://www.imdb.com/title/${episode?.tconst}/`);
             }}
             target="_blank"
-            className="text-white"
+            className="text-2xl text-white"
           >
             {episodeData.primaryTitle}
           </a>
-          <p className="text-gray-500">
-            {episode?.seasonNumber}:{episode?.episodeNumber}
-          </p>
+          <div className="mt-4 text-center text-lg text-gray-500">
+            <p className="mr-4 inline-block">
+              <b>S</b>
+              {episode?.seasonNumber}
+            </p>
+            :
+            <p className="ml-4 inline-block">
+              <b>E</b>
+              {episode?.episodeNumber}
+            </p>
+          </div>
         </div>
       ) : (
-        <div className="text-white">Loading...</div>
+        !init && <div></div>
       )}
-      <button
-        type="button"
-        className="rounded border-b-4 border-blue-700 bg-blue-500 py-2 px-4 font-bold text-white hover:border-blue-500 hover:bg-blue-400"
+      <LoadingStateButton
+        state={init || episodeData}
+        text="Roll Episode"
         onClick={rollEpisode}
-      >
-        Roll Random
-      </button>
+      />
     </div>
   );
 };
